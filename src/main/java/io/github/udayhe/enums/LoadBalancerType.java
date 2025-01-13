@@ -1,6 +1,6 @@
 package io.github.udayhe.enums;
 
-public enum LBType {
+public enum LoadBalancerType {
     RANDOM,
     ROUND_ROBIN,
     WEIGHTED,

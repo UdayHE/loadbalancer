@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static io.github.udayhe.enums.LBType.STICKY_ROUND_ROBIN;
+import static io.github.udayhe.enums.LoadBalancerType.STICKY_ROUND_ROBIN;
 
 @Singleton
 public class StickyRoundRobinLoadBalancer implements CustomLoadBalancer {

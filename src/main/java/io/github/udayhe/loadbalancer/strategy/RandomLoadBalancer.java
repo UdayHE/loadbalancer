@@ -1,6 +1,6 @@
 package io.github.udayhe.loadbalancer.strategy;
 
-import io.github.udayhe.enums.LBType;
+import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.discovery.ServiceInstance;
@@ -30,6 +30,6 @@ public class RandomLoadBalancer implements CustomLoadBalancer {
 
     @Override
     public String getType() {
-        return LBType.RANDOM.name();
+        return LoadBalancerType.RANDOM.name();
     }
 }

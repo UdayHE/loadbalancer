@@ -13,7 +13,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-import static io.github.udayhe.enums.LBType.IP_URL_HASH;
+import static io.github.udayhe.enums.LoadBalancerType.IP_URL_HASH;
 
 @Singleton
 public class IPUrlHashLoadBalancer implements CustomLoadBalancer {
@@ -26,9 +26,8 @@ public class IPUrlHashLoadBalancer implements CustomLoadBalancer {
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
-        if (discriminator == null) {
+        if (discriminator == null)
             return Mono.empty();
-        }
 
         // Compute hash from the discriminator (IP or URL)
         int index = getHash(discriminator.toString()) % instances.size();
