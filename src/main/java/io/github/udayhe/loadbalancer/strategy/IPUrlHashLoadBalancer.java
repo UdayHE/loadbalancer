@@ -7,11 +7,10 @@ import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Random;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.List;
 
 import static io.github.udayhe.enums.LoadBalancerType.IP_URL_HASH;
 
@@ -29,7 +28,6 @@ public class IPUrlHashLoadBalancer implements CustomLoadBalancer {
         if (discriminator == null)
             return Mono.empty();
 
-        // Compute hash from the discriminator (IP or URL)
         int index = getHash(discriminator.toString()) % instances.size();
         ServiceInstance selectedInstance = instances.get(index);
         return Mono.just(selectedInstance);
@@ -39,7 +37,9 @@ public class IPUrlHashLoadBalancer implements CustomLoadBalancer {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] hash = md.digest(value.getBytes());
-            return Math.abs(new Random(Arrays.hashCode(hash)).nextInt());
+            int hashCode = Arrays.hashCode(hash);
+            return (hashCode & Integer.MAX_VALUE);
+
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error calculating hash", e);
         }
