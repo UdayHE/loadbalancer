@@ -1,6 +1,7 @@
 package io.github.udayhe.api;
 
 import io.github.udayhe.service.LoadBalancerService;
+import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ public class LoadBalancerAPI {
     private final LoadBalancerService loadBalancerService;
 
     @Post()
-    public Publisher<String> route(String payload) {
-        return loadBalancerService.routeRequest("id1", "http://localhost:8080/to-do/index.html", payload);
+    public Publisher<String> route(@Body String payload) {
+        return loadBalancerService.routeRequest("id1", "/index.html", payload);
     }
 }

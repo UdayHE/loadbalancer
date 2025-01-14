@@ -1,5 +1,6 @@
 package io.github.udayhe.loadbalancer.impl;
 
+import io.github.udayhe.config.ServiceInstanceProvider;
 import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
 import io.micronaut.core.annotation.Nullable;
@@ -9,22 +10,21 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 import java.util.Iterator;
-import java.util.List;
 
 @Singleton
 public class RoundRobinLoadBalancer implements CustomLoadBalancer {
-    private final List<ServiceInstance> serviceInstances;
+    private final ServiceInstanceProvider serviceInstanceProvider;
     private Iterator<ServiceInstance> iterator;
 
-    public RoundRobinLoadBalancer(List<ServiceInstance> serviceInstances) {
-        this.serviceInstances = serviceInstances;
-        this.iterator = serviceInstances.iterator();
+    public RoundRobinLoadBalancer(ServiceInstanceProvider serviceInstanceProvider) {
+        this.serviceInstanceProvider = serviceInstanceProvider;
+        this.iterator = serviceInstanceProvider.getServiceInstances().iterator();
     }
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
         if (!iterator.hasNext()) {
-            iterator = serviceInstances.iterator();
+            iterator = serviceInstanceProvider.getServiceInstances().iterator();
         }
         ServiceInstance nextInstance = iterator.next();
         return Mono.just(nextInstance);

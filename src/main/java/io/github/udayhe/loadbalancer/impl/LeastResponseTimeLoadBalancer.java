@@ -1,5 +1,6 @@
 package io.github.udayhe.loadbalancer.impl;
 
+import io.github.udayhe.config.ServiceInstanceProvider;
 import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
 import io.micronaut.core.annotation.Nullable;
@@ -9,27 +10,26 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Singleton
 public class LeastResponseTimeLoadBalancer implements CustomLoadBalancer {
 
-    private final List<ServiceInstance> serviceInstances;
+    private final ServiceInstanceProvider serviceInstanceProvider;
     private final ConcurrentHashMap<ServiceInstance, ServerMetrics> metricsMap = new ConcurrentHashMap<>();
 
-    public LeastResponseTimeLoadBalancer(List<ServiceInstance> serviceInstances) {
-        this.serviceInstances = serviceInstances;
+    public LeastResponseTimeLoadBalancer(ServiceInstanceProvider serviceInstanceProvider) {
+        this.serviceInstanceProvider = serviceInstanceProvider;
 
         // Initialize metrics for each instance
-        serviceInstances.forEach(instance -> metricsMap.put(instance, new ServerMetrics()));
+        serviceInstanceProvider.getServiceInstances().forEach(instance -> metricsMap.put(instance, new ServerMetrics()));
     }
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
         // Find the server with the lowest load score
-        ServiceInstance selectedInstance = serviceInstances.stream()
+        ServiceInstance selectedInstance = serviceInstanceProvider.getServiceInstances().stream()
                 .min(Comparator.comparingDouble(instance -> calculateLoadScore(metricsMap.get(instance))))
                 .orElseThrow(() -> new RuntimeException("No available instances"));
 

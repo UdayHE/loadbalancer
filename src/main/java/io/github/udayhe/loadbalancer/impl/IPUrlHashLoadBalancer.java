@@ -1,5 +1,6 @@
 package io.github.udayhe.loadbalancer.impl;
 
+import io.github.udayhe.config.ServiceInstanceProvider;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.discovery.ServiceInstance;
@@ -19,14 +20,14 @@ import static io.github.udayhe.enums.LoadBalancerType.IP_URL_HASH;
 @RequiredArgsConstructor
 public class IPUrlHashLoadBalancer implements CustomLoadBalancer {
 
-    private final List<ServiceInstance> serviceInstances;
-
+    private final ServiceInstanceProvider serviceInstanceProvider;
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
         if (discriminator == null)
             return Mono.empty();
 
+        List<ServiceInstance> serviceInstances = serviceInstanceProvider.getServiceInstances();
         int index = getHash(discriminator.toString()) % serviceInstances.size();
         ServiceInstance selectedInstance = serviceInstances.get(index);
         return Mono.just(selectedInstance);
