@@ -1,4 +1,4 @@
-package io.github.udayhe.loadbalancer.strategy;
+package io.github.udayhe.loadbalancer.impl;
 
 import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
@@ -15,27 +15,27 @@ import java.util.Random;
 @Singleton
 public class WeightedLoadBalancer implements CustomLoadBalancer {
 
-    private final List<ServiceInstance> weightedInstances;
+    private final List<ServiceInstance> serviceInstances;
     private final Random random = new Random();
 
-    public WeightedLoadBalancer(List<ServiceInstance> instances) {
-        this.weightedInstances = instances;
+    public WeightedLoadBalancer(List<ServiceInstance> serviceInstances) {
+        this.serviceInstances = serviceInstances;
     }
 
     public WeightedLoadBalancer(List<ServiceInstance> instances, List<Integer> weights) {
-        this.weightedInstances = new ArrayList<>();
+        this.serviceInstances = new ArrayList<>();
         for (int i = 0; i < instances.size(); i++) {
             int weight = weights.get(i);
             for (int j = 0; j < weight; j++) {
-                weightedInstances.add(instances.get(i));
+                serviceInstances.add(instances.get(i));
             }
         }
     }
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
-        int index = random.nextInt(weightedInstances.size());
-        ServiceInstance selectedInstance = weightedInstances.get(index);
+        int index = random.nextInt(serviceInstances.size());
+        ServiceInstance selectedInstance = serviceInstances.get(index);
         return Mono.just(selectedInstance);
     }
 

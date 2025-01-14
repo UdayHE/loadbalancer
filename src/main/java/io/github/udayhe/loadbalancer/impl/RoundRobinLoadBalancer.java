@@ -1,4 +1,4 @@
-package io.github.udayhe.loadbalancer.strategy;
+package io.github.udayhe.loadbalancer.impl;
 
 import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
@@ -13,18 +13,18 @@ import java.util.List;
 
 @Singleton
 public class RoundRobinLoadBalancer implements CustomLoadBalancer {
-    private final List<ServiceInstance> instances;
+    private final List<ServiceInstance> serviceInstances;
     private Iterator<ServiceInstance> iterator;
 
-    public RoundRobinLoadBalancer(List<ServiceInstance> instances) {
-        this.instances = instances;
-        this.iterator = instances.iterator();
+    public RoundRobinLoadBalancer(List<ServiceInstance> serviceInstances) {
+        this.serviceInstances = serviceInstances;
+        this.iterator = serviceInstances.iterator();
     }
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
         if (!iterator.hasNext()) {
-            iterator = instances.iterator();
+            iterator = serviceInstances.iterator();
         }
         ServiceInstance nextInstance = iterator.next();
         return Mono.just(nextInstance);

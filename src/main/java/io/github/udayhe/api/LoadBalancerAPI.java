@@ -14,6 +14,6 @@ public class LoadBalancerAPI {
 
     @Post()
     public Publisher<String> route(String payload) {
-        return loadBalancerService.routeRequest("user123", "/target-service-endpoint", payload);
+        return loadBalancerService.routeRequest("id1", "http://localhost:8080/to-do/index.html", payload);
     }
 }

@@ -1,9 +1,10 @@
-package io.github.udayhe.loadbalancer.strategy;
+package io.github.udayhe.loadbalancer.impl;
 
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.discovery.ServiceInstance;
 import jakarta.inject.Singleton;
+import lombok.RequiredArgsConstructor;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
@@ -15,21 +16,19 @@ import java.util.List;
 import static io.github.udayhe.enums.LoadBalancerType.IP_URL_HASH;
 
 @Singleton
+@RequiredArgsConstructor
 public class IPUrlHashLoadBalancer implements CustomLoadBalancer {
 
-    private final List<ServiceInstance> instances;
+    private final List<ServiceInstance> serviceInstances;
 
-    public IPUrlHashLoadBalancer(List<ServiceInstance> instances) {
-        this.instances = instances;
-    }
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
         if (discriminator == null)
             return Mono.empty();
 
-        int index = getHash(discriminator.toString()) % instances.size();
-        ServiceInstance selectedInstance = instances.get(index);
+        int index = getHash(discriminator.toString()) % serviceInstances.size();
+        ServiceInstance selectedInstance = serviceInstances.get(index);
         return Mono.just(selectedInstance);
     }
 

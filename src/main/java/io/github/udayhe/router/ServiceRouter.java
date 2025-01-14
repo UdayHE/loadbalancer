@@ -2,7 +2,7 @@ package io.github.udayhe.router;
 
 import io.github.udayhe.context.LoadBalancerContext;
 import io.github.udayhe.enums.LoadBalancerType;
-import io.github.udayhe.loadbalancer.strategy.*;
+import io.github.udayhe.loadbalancer.impl.*;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;

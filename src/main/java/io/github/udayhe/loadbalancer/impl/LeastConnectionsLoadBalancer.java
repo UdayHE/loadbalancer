@@ -1,4 +1,4 @@
-package io.github.udayhe.loadbalancer.strategy;
+package io.github.udayhe.loadbalancer.impl;
 
 import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
@@ -16,17 +16,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Singleton
 public class LeastConnectionsLoadBalancer implements CustomLoadBalancer {
 
-    private final List<ServiceInstance> instances;
+    private final List<ServiceInstance> serviceInstances;
     private final ConcurrentHashMap<ServiceInstance, AtomicInteger> connectionCounts = new ConcurrentHashMap<>();
 
-    public LeastConnectionsLoadBalancer(List<ServiceInstance> instances) {
-        this.instances = instances;
-        instances.forEach(instance -> connectionCounts.put(instance, new AtomicInteger(0)));
+    public LeastConnectionsLoadBalancer(List<ServiceInstance> serviceInstances) {
+        this.serviceInstances = serviceInstances;
+        serviceInstances.forEach(instance -> connectionCounts.put(instance, new AtomicInteger(0)));
     }
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
-        ServiceInstance selectedInstance = instances.stream()
+        ServiceInstance selectedInstance = serviceInstances.stream()
                 .min(Comparator.comparingInt(instance -> connectionCounts.get(instance).get()))
                 .orElseThrow(() -> new RuntimeException("No available instances"));
 

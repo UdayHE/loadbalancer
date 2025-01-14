@@ -1,4 +1,4 @@
-package io.github.udayhe.loadbalancer.strategy;
+package io.github.udayhe.loadbalancer.impl;
 
 import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
@@ -16,20 +16,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Singleton
 public class LeastResponseTimeLoadBalancer implements CustomLoadBalancer {
 
-    private final List<ServiceInstance> instances;
+    private final List<ServiceInstance> serviceInstances;
     private final ConcurrentHashMap<ServiceInstance, ServerMetrics> metricsMap = new ConcurrentHashMap<>();
 
-    public LeastResponseTimeLoadBalancer(List<ServiceInstance> instances) {
-        this.instances = instances;
+    public LeastResponseTimeLoadBalancer(List<ServiceInstance> serviceInstances) {
+        this.serviceInstances = serviceInstances;
 
         // Initialize metrics for each instance
-        instances.forEach(instance -> metricsMap.put(instance, new ServerMetrics()));
+        serviceInstances.forEach(instance -> metricsMap.put(instance, new ServerMetrics()));
     }
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
         // Find the server with the lowest load score
-        ServiceInstance selectedInstance = instances.stream()
+        ServiceInstance selectedInstance = serviceInstances.stream()
                 .min(Comparator.comparingDouble(instance -> calculateLoadScore(metricsMap.get(instance))))
                 .orElseThrow(() -> new RuntimeException("No available instances"));
 
