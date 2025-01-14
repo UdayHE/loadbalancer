@@ -30,7 +30,7 @@ dependencies {
 
 
 application {
-    mainClass = "io.github.udayhe.Application"
+    mainClass = "io.github.udayhe.LoadBalancerLauncher"
 }
 java {
     sourceCompatibility = JavaVersion.toVersion("21")

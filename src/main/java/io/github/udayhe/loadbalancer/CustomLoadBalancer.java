@@ -7,5 +7,6 @@ import org.reactivestreams.Publisher;
 public interface CustomLoadBalancer extends LoadBalancer {
 
     Publisher<ServiceInstance> select(Object discriminator);
+
     String getType();
 }

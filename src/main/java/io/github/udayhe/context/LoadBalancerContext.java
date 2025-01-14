@@ -17,6 +17,7 @@ public class LoadBalancerContext {
     public Publisher<ServiceInstance> selectService(Object discriminator) {
         return loadBalancer.select(discriminator);
     }
+
     public String getLoadBalancerType() {
         return loadBalancer.getType();
     }
