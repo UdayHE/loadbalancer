@@ -40,6 +40,8 @@ public class ServiceRouter {
         Object discriminator = routingRequest.getDiscriminator();
         String endPointPath = routingRequest.getEndPointPath();
         String payload = routingRequest.getPayload();
+        String httpMethod = routingRequest.getHttpMethod();
+        String resourceType = routingRequest.getResourceType();
 
         LoadBalancerType loadBalancerType = LoadBalancerType.valueOf(strategyType);
         switch (loadBalancerType) {
@@ -71,15 +73,46 @@ public class ServiceRouter {
         // Select service instance and route the request
         return Mono.from(loadBalancerContext.selectService(discriminator))
                 .flatMap(serviceInstance -> {
-                    String instanceUri = serviceInstance.getURI().toString();
-                    log.info("Service URI:{}", instanceUri);
-                    try {
-                        HttpRequest<String> request = HttpRequest.GET(instanceUri);
-                        return Mono.from(httpClient.retrieve(request, String.class));
-                    } catch (Exception e) {
-                        log.error("Exception in routeRequest.", e);
-                        return Mono.error(e);
+                    String instanceUri = serviceInstance.getURI().toString() + endPointPath;
+
+                    // Adjust URI based on resource type
+                    switch (resourceType.toLowerCase()) {
+                        case "html":
+                            instanceUri += ".html";
+                            break;
+                        case "js":
+                            instanceUri += ".js";
+                            break;
+                        case "scripts":
+                            instanceUri += ".script";
+                            break;
+                        // Add other resource types as needed
+                        default:
+                            log.warn("Unknown resource type: {}. Using raw endpoint.", resourceType);
                     }
-                });
+
+                    log.info("Routing {} request to URI: {}", httpMethod, instanceUri);
+                    // Create the appropriate HttpRequest based on the HTTP method
+                    HttpRequest<?> request;
+                    switch (httpMethod.toUpperCase()) {
+                        case "GET":
+                            request = HttpRequest.GET(instanceUri);
+                            break;
+                        case "POST":
+                            request = HttpRequest.POST(instanceUri, payload);
+                            break;
+                        case "PUT":
+                            request = HttpRequest.PUT(instanceUri, payload);
+                            break;
+                        case "DELETE":
+                            request = HttpRequest.DELETE(instanceUri);
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unsupported HTTP method: " + httpMethod);
+                    }
+
+                    return Mono.from(httpClient.retrieve(request, String.class));
+                })
+                .doOnError(e -> log.error("Exception in routeRequest", e));
     }
 }

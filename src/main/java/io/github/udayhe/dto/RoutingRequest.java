@@ -15,5 +15,6 @@ public class RoutingRequest {
     private Object discriminator;
     private String endPointPath;
     private String payload;
-    private HttpRequest request;
+    private String resourceType;
+    private String httpMethod;
 }

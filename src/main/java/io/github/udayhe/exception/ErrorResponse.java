@@ -1,8 +1,10 @@
 package io.github.udayhe.exception;
 
+import io.micronaut.serde.annotation.Serdeable;
 import lombok.Getter;
 
 @Getter
+@Serdeable
 public class ErrorResponse {
     private String error;
     private String message;
