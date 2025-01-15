@@ -5,16 +5,17 @@ import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.loadbalancer.impl.*;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpRequest;
-import io.micronaut.http.MediaType;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 @Singleton
+@Slf4j
 @RequiredArgsConstructor
 public class ServiceRouter {
 
@@ -34,8 +35,7 @@ public class ServiceRouter {
     @Client("/")
     private HttpClient httpClient;
 
-    public Publisher<String> routeRequest(Object discriminator, String endpointPath, String payload) {
-        // Choose the appropriate load balancer strategy
+    public Publisher<String> routeRequest(Object discriminator, String endPointPath, String payload) {
         LoadBalancerType loadBalancerType = LoadBalancerType.valueOf(strategyType);
         switch (loadBalancerType) {
             case IP_URL_HASH:
@@ -66,17 +66,13 @@ public class ServiceRouter {
         // Select service instance and route the request
         return Mono.from(loadBalancerContext.selectService(discriminator))
                 .flatMap(serviceInstance -> {
-                    String baseUri = serviceInstance.getURI().toString();
-                  //  String targetUrl = baseUri + (endpointPath.startsWith("/") ? endpointPath : "/" + endpointPath);
-
-                //    System.out.println("Target URL: " + targetUrl);
-                    System.out.println("Payload: " + payload);
-
+                    String instanceUri = serviceInstance.getURI().toString();
+                    log.info("Service URI:{}", instanceUri);
                     try {
-                        HttpRequest<String> request = HttpRequest.GET(baseUri);
+                        HttpRequest<String> request = HttpRequest.GET(instanceUri);
                         return Mono.from(httpClient.retrieve(request, String.class));
                     } catch (Exception e) {
-                        System.err.println("Error making HTTP request: " + e.getMessage());
+                        log.error("Exception in routeRequest.", e);
                         return Mono.error(e);
                     }
                 });

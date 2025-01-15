@@ -8,7 +8,6 @@ import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.github.udayhe.enums.LoadBalancerType.STICKY_ROUND_ROBIN;
