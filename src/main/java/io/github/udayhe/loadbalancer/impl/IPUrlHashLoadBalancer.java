@@ -1,6 +1,7 @@
 package io.github.udayhe.loadbalancer.impl;
 
 import io.github.udayhe.config.ServiceInstanceProvider;
+import io.github.udayhe.exception.LoadBalancerException;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.discovery.ServiceInstance;
@@ -41,7 +42,7 @@ public class IPUrlHashLoadBalancer implements CustomLoadBalancer {
             return (hashCode & Integer.MAX_VALUE);
 
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error calculating hash", e);
+            throw new LoadBalancerException("Error calculating hash.."+ e);
         }
     }
 
