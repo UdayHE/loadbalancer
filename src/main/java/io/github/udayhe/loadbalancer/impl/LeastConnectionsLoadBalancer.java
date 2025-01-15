@@ -2,6 +2,7 @@ package io.github.udayhe.loadbalancer.impl;
 
 import io.github.udayhe.config.ServiceInstanceProvider;
 import io.github.udayhe.enums.LoadBalancerType;
+import io.github.udayhe.exception.LoadBalancerException;
 import io.github.udayhe.loadbalancer.CustomLoadBalancer;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.discovery.ServiceInstance;
@@ -12,6 +13,8 @@ import reactor.core.publisher.Mono;
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static io.github.udayhe.constant.ExceptionConstant.INSTANCE_UNAVAILABLE;
 
 @Singleton
 public class LeastConnectionsLoadBalancer implements CustomLoadBalancer {
@@ -28,7 +31,7 @@ public class LeastConnectionsLoadBalancer implements CustomLoadBalancer {
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
         ServiceInstance selectedInstance = this.serviceInstanceProvider.getServiceInstances().stream()
                 .min(Comparator.comparingInt(instance -> connectionCounts.get(instance).get()))
-                .orElseThrow(() -> new RuntimeException("No available instances"));
+                .orElseThrow(() -> new LoadBalancerException(INSTANCE_UNAVAILABLE));
 
         connectionCounts.get(selectedInstance).incrementAndGet();
         return Mono.just(selectedInstance);
