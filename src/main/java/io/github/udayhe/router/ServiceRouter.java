@@ -1,6 +1,7 @@
 package io.github.udayhe.router;
 
 import io.github.udayhe.context.LoadBalancerContext;
+import io.github.udayhe.dto.RoutingRequest;
 import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.loadbalancer.impl.*;
 import io.micronaut.context.annotation.Value;
@@ -35,7 +36,11 @@ public class ServiceRouter {
     @Client("/")
     private HttpClient httpClient;
 
-    public Publisher<String> routeRequest(Object discriminator, String endPointPath, String payload) {
+    public Publisher<String> routeRequest(RoutingRequest routingRequest) {
+        Object discriminator = routingRequest.getDiscriminator();
+        String endPointPath = routingRequest.getEndPointPath();
+        String payload = routingRequest.getPayload();
+
         LoadBalancerType loadBalancerType = LoadBalancerType.valueOf(strategyType);
         switch (loadBalancerType) {
             case IP_URL_HASH:
