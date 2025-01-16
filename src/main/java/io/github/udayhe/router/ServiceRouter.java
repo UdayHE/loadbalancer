@@ -3,17 +3,19 @@ package io.github.udayhe.router;
 import io.github.udayhe.context.LoadBalancerContext;
 import io.github.udayhe.dto.RoutingRequest;
 import io.github.udayhe.enums.LoadBalancerType;
+import io.github.udayhe.exception.LoadBalancerException;
 import io.github.udayhe.loadbalancer.impl.*;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
+
+import static io.github.udayhe.enums.LoadBalancerType.valueOf;
 
 @Singleton
 @Slf4j
@@ -29,12 +31,10 @@ public class ServiceRouter {
     private final RoundRobinLoadBalancer roundRobinLoadBalancer;
     private final RandomLoadBalancer randomLoadBalancer;
 
+    @Client("/")
+    private final HttpClient httpClient;
     @Value("${app.loadBalancerStrategy}")
     private String strategyType;
-
-    @Inject
-    @Client("/")
-    private HttpClient httpClient;
 
     public Publisher<String> routeRequest(RoutingRequest routingRequest) {
         Object discriminator = routingRequest.getDiscriminator();
@@ -43,76 +43,48 @@ public class ServiceRouter {
         String httpMethod = routingRequest.getHttpMethod();
         String resourceType = routingRequest.getResourceType();
 
-        LoadBalancerType loadBalancerType = LoadBalancerType.valueOf(strategyType);
-        switch (loadBalancerType) {
-            case IP_URL_HASH:
-                loadBalancerContext.setLoadBalancer(ipUrlHashLoadBalancer);
-                break;
-            case STICKY_ROUND_ROBIN:
-                loadBalancerContext.setLoadBalancer(stickyRoundRobinLoadBalancer);
-                break;
-            case LEAST_RESPONSE_TIME:
-                loadBalancerContext.setLoadBalancer(leastResponseTimeLoadBalancer);
-                break;
-            case LEAST_CONNECTIONS:
-                loadBalancerContext.setLoadBalancer(leastConnectionsLoadBalancer);
-                break;
-            case WEIGHTED:
-                loadBalancerContext.setLoadBalancer(weightedLoadBalancer);
-                break;
-            case ROUND_ROBIN:
-                loadBalancerContext.setLoadBalancer(roundRobinLoadBalancer);
-                break;
-            case RANDOM:
-                loadBalancerContext.setLoadBalancer(randomLoadBalancer);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown strategy type: " + strategyType);
-        }
-
-        // Select service instance and route the request
+        LoadBalancerType loadBalancerType = valueOf(strategyType);
+        setLoadBalancerContext(loadBalancerType);
         return Mono.from(loadBalancerContext.selectService(discriminator))
                 .flatMap(serviceInstance -> {
-                    String instanceUri = serviceInstance.getURI().toString() + endPointPath;
-
-                    // Adjust URI based on resource type
-                    switch (resourceType.toLowerCase()) {
-                        case "html":
-                            instanceUri += ".html";
-                            break;
-                        case "js":
-                            instanceUri += ".js";
-                            break;
-                        case "scripts":
-                            instanceUri += ".script";
-                            break;
-                        // Add other resource types as needed
-                        default:
-                            log.warn("Unknown resource type: {}. Using raw endpoint.", resourceType);
-                    }
-
+                    String instanceUri = getInstanceURI(resourceType, serviceInstance.getURI().toString() + endPointPath);
                     log.info("Routing {} request to URI: {}", httpMethod, instanceUri);
-                    // Create the appropriate HttpRequest based on the HTTP method
-                    HttpRequest<?> request;
-                    switch (httpMethod.toUpperCase()) {
-                        case "GET":
-                            request = HttpRequest.GET(instanceUri);
-                            break;
-                        case "POST":
-                            request = HttpRequest.POST(instanceUri, payload);
-                            break;
-                        case "PUT":
-                            request = HttpRequest.PUT(instanceUri, payload);
-                            break;
-                        case "DELETE":
-                            request = HttpRequest.DELETE(instanceUri);
-                            break;
-                        default:
-                            throw new IllegalArgumentException("Unsupported HTTP method: " + httpMethod);
-                    }
+                    HttpRequest<?> request = getHttpRequest(httpMethod, instanceUri, payload);
 
                     return Mono.from(httpClient.retrieve(request, String.class));
-                })
-                .doOnError(e -> log.error("Exception in routeRequest", e));
+                }).doOnError(e -> log.error("Exception in routeRequest", e));
+    }
+
+    private void setLoadBalancerContext(LoadBalancerType loadBalancerType) {
+        switch (loadBalancerType) {
+            case IP_URL_HASH -> loadBalancerContext.setLoadBalancer(ipUrlHashLoadBalancer);
+            case STICKY_ROUND_ROBIN -> loadBalancerContext.setLoadBalancer(stickyRoundRobinLoadBalancer);
+            case LEAST_RESPONSE_TIME -> loadBalancerContext.setLoadBalancer(leastResponseTimeLoadBalancer);
+            case LEAST_CONNECTIONS -> loadBalancerContext.setLoadBalancer(leastConnectionsLoadBalancer);
+            case WEIGHTED -> loadBalancerContext.setLoadBalancer(weightedLoadBalancer);
+            case ROUND_ROBIN -> loadBalancerContext.setLoadBalancer(roundRobinLoadBalancer);
+            case RANDOM -> loadBalancerContext.setLoadBalancer(randomLoadBalancer);
+            default -> throw new LoadBalancerException("Unknown strategy type: " + strategyType);
+        }
+    }
+
+    private String getInstanceURI(String resourceType, String instanceUri) {
+        switch (resourceType.toLowerCase()) {
+            case "html" -> instanceUri += ".html";
+            case "js" -> instanceUri += ".js";
+            case "scripts" -> instanceUri += ".script";
+            default -> throw new LoadBalancerException("Unknown resource type:" + resourceType + ". Using raw endpoint. ");
+        }
+        return instanceUri;
+    }
+
+    private HttpRequest<?> getHttpRequest(String httpMethod, String instanceUri, String payload) {
+        return switch (httpMethod.toUpperCase()) {
+            case "GET" -> HttpRequest.GET(instanceUri);
+            case "POST" -> HttpRequest.POST(instanceUri, payload);
+            case "PUT" -> HttpRequest.PUT(instanceUri, payload);
+            case "DELETE" -> HttpRequest.DELETE(instanceUri);
+            default -> throw new LoadBalancerException("Unsupported HTTP method: " + httpMethod);
+        };
     }
 }

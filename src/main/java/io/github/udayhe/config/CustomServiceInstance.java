@@ -1,7 +1,6 @@
 package io.github.udayhe.config;
 
 import io.micronaut.discovery.ServiceInstance;
-import lombok.Getter;
 
 import java.net.URI;
 
