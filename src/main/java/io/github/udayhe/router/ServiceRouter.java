@@ -75,7 +75,6 @@ public class ServiceRouter {
             case HTML -> instanceUri += ".html";
             case JS -> instanceUri += ".js";
             case SCRIPT -> instanceUri += ".script";
-            default -> throw new LoadBalancerException("Unknown resource type:" + resourceType + ". Using raw endpoint. ");
         }
         return instanceUri;
     }

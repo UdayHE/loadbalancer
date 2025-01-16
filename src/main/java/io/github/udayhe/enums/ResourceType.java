@@ -4,5 +4,8 @@ public enum ResourceType {
     API,
     HTML,
     JS,
-    SCRIPT
+    SCRIPT,
+    CSS,
+    IMAGE,
+    UNKNOWN
 }
