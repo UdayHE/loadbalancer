@@ -1,6 +1,6 @@
 package io.github.udayhe.service.impl;
 
-import io.github.udayhe.dto.RoutingRequest;
+import io.github.udayhe.request.RoutingRequest;
 import io.github.udayhe.router.ServiceRouter;
 import io.github.udayhe.service.LoadBalancerService;
 import jakarta.inject.Singleton;

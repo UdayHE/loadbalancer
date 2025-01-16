@@ -1,4 +1,4 @@
-package io.github.udayhe.dto;
+package io.github.udayhe.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

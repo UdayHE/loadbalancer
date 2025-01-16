@@ -1,6 +1,6 @@
 package io.github.udayhe.api;
 
-import io.github.udayhe.dto.RoutingRequest;
+import io.github.udayhe.request.RoutingRequest;
 import io.github.udayhe.service.LoadBalancerService;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Body;

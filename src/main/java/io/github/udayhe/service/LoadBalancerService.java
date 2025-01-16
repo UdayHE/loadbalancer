@@ -1,6 +1,6 @@
 package io.github.udayhe.service;
 
-import io.github.udayhe.dto.RoutingRequest;
+import io.github.udayhe.request.RoutingRequest;
 import org.reactivestreams.Publisher;
 
 public interface LoadBalancerService {

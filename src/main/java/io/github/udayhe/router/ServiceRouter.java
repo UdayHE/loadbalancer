@@ -1,7 +1,7 @@
 package io.github.udayhe.router;
 
 import io.github.udayhe.context.LoadBalancerContext;
-import io.github.udayhe.dto.RoutingRequest;
+import io.github.udayhe.request.RoutingRequest;
 import io.github.udayhe.enums.LoadBalancerType;
 import io.github.udayhe.exception.LoadBalancerException;
 import io.github.udayhe.loadbalancer.impl.*;
