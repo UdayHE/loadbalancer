@@ -1,10 +1,12 @@
 package io.github.udayhe.router;
 
 import io.github.udayhe.context.LoadBalancerContext;
-import io.github.udayhe.request.RoutingRequest;
+import io.github.udayhe.enums.HttpMethod;
 import io.github.udayhe.enums.LoadBalancerType;
+import io.github.udayhe.enums.ResourceType;
 import io.github.udayhe.exception.LoadBalancerException;
 import io.github.udayhe.loadbalancer.impl.*;
+import io.github.udayhe.request.RoutingRequest;
 import io.micronaut.context.annotation.Value;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
@@ -40,8 +42,8 @@ public class ServiceRouter {
         Object discriminator = routingRequest.getDiscriminator();
         String endPointPath = routingRequest.getEndPointPath();
         String payload = routingRequest.getPayload();
-        String httpMethod = routingRequest.getHttpMethod();
-        String resourceType = routingRequest.getResourceType();
+        HttpMethod httpMethod = routingRequest.getHttpMethod();
+        ResourceType resourceType = routingRequest.getResourceType();
 
         LoadBalancerType loadBalancerType = valueOf(strategyType);
         setLoadBalancerContext(loadBalancerType);
@@ -68,23 +70,25 @@ public class ServiceRouter {
         }
     }
 
-    private String getInstanceURI(String resourceType, String instanceUri) {
-        switch (resourceType.toLowerCase()) {
-            case "html" -> instanceUri += ".html";
-            case "js" -> instanceUri += ".js";
-            case "scripts" -> instanceUri += ".script";
+    private String getInstanceURI(ResourceType resourceType, String instanceUri) {
+        switch (resourceType) {
+            case HTML -> instanceUri += ".html";
+            case JS -> instanceUri += ".js";
+            case SCRIPT -> instanceUri += ".script";
             default -> throw new LoadBalancerException("Unknown resource type:" + resourceType + ". Using raw endpoint. ");
         }
         return instanceUri;
     }
 
-    private HttpRequest<?> getHttpRequest(String httpMethod, String instanceUri, String payload) {
-        return switch (httpMethod.toUpperCase()) {
-            case "GET" -> HttpRequest.GET(instanceUri);
-            case "POST" -> HttpRequest.POST(instanceUri, payload);
-            case "PUT" -> HttpRequest.PUT(instanceUri, payload);
-            case "DELETE" -> HttpRequest.DELETE(instanceUri);
-            default -> throw new LoadBalancerException("Unsupported HTTP method: " + httpMethod);
+    private HttpRequest<?> getHttpRequest(HttpMethod httpMethod, String uri, String body) {
+        return switch (httpMethod) {
+            case GET -> HttpRequest.GET(uri);
+            case POST -> HttpRequest.POST(uri, body);
+            case PUT -> HttpRequest.PUT(uri, body);
+            case DELETE -> HttpRequest.DELETE(uri);
+            case OPTIONS -> HttpRequest.OPTIONS(uri);
+            case HEAD -> HttpRequest.HEAD(uri);
+            case PATCH -> HttpRequest.PATCH(uri, body);
         };
     }
 }

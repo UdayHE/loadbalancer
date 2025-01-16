@@ -10,7 +10,7 @@ curl --location 'http://localhost:8081/load-balancer/route/' \
     "discriminator" : "service1",
     "endPointPath": "/index",
     "payload": null,
-    "resourceType": "html",
+    "resourceType": "HTML",
     "httpMethod": "GET"
 }'
 ```
