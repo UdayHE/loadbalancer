@@ -1,11 +1,11 @@
-FROM openjdk:21-jdk
-
-RUN  mkdir -p /etc/udayhegde/load-balancer
+FROM openjdk:21-jdk-slim
 
 WORKDIR /etc/udayhegde/load-balancer
 
-ADD build/libs/*.jar ./
+COPY build/libs/*.jar app.jar
 
-CMD java $JAVA_OPTS -Dserver.port=8081 -Dmicronaut.environments=test -jar *.jar
+ENV JAVA_OPTS="-Xmx512m -Xms256m"
+
+CMD ["java", "$JAVA_OPTS", "-Dserver.port=8081", "-Dmicronaut.environments=test", "-jar", "app.jar"]
 
 EXPOSE 8081
