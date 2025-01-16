@@ -24,21 +24,16 @@ public class LeastResponseTimeLoadBalancer implements CustomLoadBalancer {
 
     public LeastResponseTimeLoadBalancer(ServiceInstanceProvider serviceInstanceProvider) {
         this.serviceInstanceProvider = serviceInstanceProvider;
-
-        // Initialize metrics for each instance
         serviceInstanceProvider.getServiceInstances().forEach(instance -> metricsMap.put(instance, new ServerMetrics()));
     }
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
-        // Find the server with the lowest load score
         ServiceInstance selectedInstance = serviceInstanceProvider.getServiceInstances().stream()
                 .min(Comparator.comparingDouble(instance -> calculateLoadScore(metricsMap.get(instance))))
                 .orElseThrow(() -> new LoadBalancerException(INSTANCE_UNAVAILABLE));
 
-        // Increment the active connections for the selected instance
         metricsMap.get(selectedInstance).incrementConnections();
-
         return Mono.just(selectedInstance);
     }
 
@@ -63,8 +58,6 @@ public class LeastResponseTimeLoadBalancer implements CustomLoadBalancer {
 
     private double calculateLoadScore(ServerMetrics metrics) {
         if (metrics == null) return Double.MAX_VALUE;
-
-        // Normalize the response time to a weight (can be tuned as needed)
         double normalizedResponseTime = metrics.getAverageResponseTime() / 100.0;
         return metrics.getActiveConnections() + normalizedResponseTime;
     }

@@ -9,14 +9,13 @@ import io.micronaut.http.annotation.Post;
 import lombok.RequiredArgsConstructor;
 import org.reactivestreams.Publisher;
 
-import static io.github.udayhe.constant.ConfigConstant.ROUTE_PATH;
+import static io.github.udayhe.constant.ConfigConstant.ROUTE_CONTROLLER_PATH;
 
-@Controller(ROUTE_PATH)
+@Controller(ROUTE_CONTROLLER_PATH)
 @RequiredArgsConstructor
 public class LoadBalancerAPI {
 
     private final LoadBalancerService loadBalancerService;
-
 
     @Post()
     public HttpResponse<Publisher<String>> route(@Body RoutingRequest routingRequest) {

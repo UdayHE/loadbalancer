@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.github.udayhe.enums.LoadBalancerType.STICKY_ROUND_ROBIN;
+import static java.util.Objects.isNull;
 
 @Singleton
 public class StickyRoundRobinLoadBalancer implements CustomLoadBalancer {
@@ -24,12 +25,8 @@ public class StickyRoundRobinLoadBalancer implements CustomLoadBalancer {
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
-        if (discriminator == null) {
+        if (isNull(discriminator))
             return Mono.empty();
-        }
-
-        // We could use discriminator (like IP or session) to make the round robin sticky.
-        // In this example, we'll ignore the discriminator and just apply round robin.
         int index = currentIndex.getAndIncrement() % serviceInstanceProvider.getServiceInstances().size();
         ServiceInstance selectedInstance = serviceInstanceProvider.getServiceInstances().get(index);
         return Mono.just(selectedInstance);

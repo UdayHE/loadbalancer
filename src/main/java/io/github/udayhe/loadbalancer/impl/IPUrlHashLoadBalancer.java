@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.github.udayhe.enums.LoadBalancerType.IP_URL_HASH;
+import static java.util.Objects.isNull;
 
 @Singleton
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class IPUrlHashLoadBalancer implements CustomLoadBalancer {
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
-        if (discriminator == null)
+        if (isNull(discriminator))
             return Mono.empty();
 
         List<ServiceInstance> serviceInstances = serviceInstanceProvider.getServiceInstances();

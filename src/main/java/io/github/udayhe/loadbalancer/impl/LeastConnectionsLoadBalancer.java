@@ -24,7 +24,8 @@ public class LeastConnectionsLoadBalancer implements CustomLoadBalancer {
 
     public LeastConnectionsLoadBalancer(ServiceInstanceProvider serviceInstanceProvider) {
         this.serviceInstanceProvider = serviceInstanceProvider;
-        this.serviceInstanceProvider.getServiceInstances().forEach(instance -> connectionCounts.put(instance, new AtomicInteger(0)));
+        this.serviceInstanceProvider.getServiceInstances()
+                .forEach(instance -> connectionCounts.put(instance, new AtomicInteger(0)));
     }
 
     @Override

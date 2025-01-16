@@ -23,9 +23,8 @@ public class RoundRobinLoadBalancer implements CustomLoadBalancer {
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
-        if (!iterator.hasNext()) {
+        if (!iterator.hasNext())
             iterator = serviceInstanceProvider.getServiceInstances().iterator();
-        }
         ServiceInstance nextInstance = iterator.next();
         return Mono.just(nextInstance);
     }
