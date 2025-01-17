@@ -1,4 +1,4 @@
-package io.github.udayhe.api;
+package io.github.udayhe.controller;
 
 import io.github.udayhe.request.RoutingRequest;
 import io.github.udayhe.service.LoadBalancerService;
@@ -13,7 +13,7 @@ import static io.github.udayhe.constant.ConfigConstant.ROUTE_CONTROLLER_PATH;
 
 @Controller(ROUTE_CONTROLLER_PATH)
 @RequiredArgsConstructor
-public class LoadBalancerAPI {
+public class LoadBalancerController {
 
     private final LoadBalancerService loadBalancerService;
 
