@@ -30,10 +30,10 @@ public class LeastConnectionsLoadBalancer implements CustomLoadBalancer {
 
     @Override
     public Publisher<ServiceInstance> select(@Nullable Object discriminator) {
-        ServiceInstance selectedInstance = this.serviceInstanceProvider.getServiceInstances().stream()
+        ServiceInstance selectedInstance = this.serviceInstanceProvider
+                .getServiceInstances().stream()
                 .min(Comparator.comparingInt(instance -> connectionCounts.get(instance).get()))
                 .orElseThrow(() -> new LoadBalancerException(INSTANCE_UNAVAILABLE));
-
         connectionCounts.get(selectedInstance).incrementAndGet();
         return Mono.just(selectedInstance);
     }

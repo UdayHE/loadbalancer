@@ -8,7 +8,9 @@ import reactor.core.publisher.Flux;
 
 import java.time.Duration;
 
-@Controller("/sse")
+import static io.github.udayhe.constant.ConfigConstant.SSE_PATH;
+
+@Controller(SSE_PATH)
 public class ServerSentEventsController {
 
     @Get(produces = MediaType.TEXT_EVENT_STREAM)

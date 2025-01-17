@@ -41,9 +41,8 @@ public class IPUrlHashLoadBalancer implements CustomLoadBalancer {
             byte[] hash = md.digest(value.getBytes());
             int hashCode = Arrays.hashCode(hash);
             return (hashCode & Integer.MAX_VALUE);
-
         } catch (NoSuchAlgorithmException e) {
-            throw new LoadBalancerException("Error calculating hash.."+ e);
+            throw new LoadBalancerException("Error calculating hash.." + e);
         }
     }
 

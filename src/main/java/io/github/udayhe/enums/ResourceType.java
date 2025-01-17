@@ -7,7 +7,5 @@ public enum ResourceType {
     SCRIPT,
     CSS,
     IMAGE,
-    WEB_SOCKET,
-    SSE,
     UNKNOWN
 }

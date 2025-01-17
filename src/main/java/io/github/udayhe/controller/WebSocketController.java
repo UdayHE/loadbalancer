@@ -4,7 +4,9 @@ import io.micronaut.websocket.WebSocketSession;
 import io.micronaut.websocket.annotation.OnMessage;
 import io.micronaut.websocket.annotation.ServerWebSocket;
 
-@ServerWebSocket("/ws/{topic}")
+import static io.github.udayhe.constant.ConfigConstant.WEBSOCKET_PATH;
+
+@ServerWebSocket(WEBSOCKET_PATH)
 public class WebSocketController {
 
     @OnMessage
